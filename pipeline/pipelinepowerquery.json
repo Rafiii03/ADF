@@ -1,5 +1,5 @@
 {
-	"name": "pipeline2",
+	"name": "pipelinepowerquery",
 	"properties": {
 		"activities": [
 			{
@@ -30,7 +30,7 @@
 								"referenceName": "dataflowoutput",
 								"type": "DatasetReference"
 							},
-							"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['power'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Sinkdataflowoutput"
+							"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['power.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Sinkdataflowoutput"
 						}
 					}
 				}
