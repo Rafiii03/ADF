@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "RafiiiADF-ADF"
+		},
+		"AzureBlobStoragerafiiiadf_connectionString": {
+			"value": ""
+		},
+		"Oracle1_connectionString": {
+			"value": ""
+		},
+		"SqlServer1_connectionString": {
+			"value": ""
+		},
+		"Handsontrigger_properties_master_parameters_File": {
+			"value": "@triggerBody().fileName"
+		},
+		"Handsontrigger_properties_typeProperties_scope": {
+			"value": "/subscriptions/ec9d0891-2553-4cc9-b16e-1aa0c7040f80/resourceGroups/RafiiiADF/providers/Microsoft.Storage/storageAccounts/storagerafiiiadf"
+		},
+		"trigger1_properties_pipeline1_parameters_TriggerFilename": {
+			"value": "@triggerBody().fileName"
+		},
+		"trigger1_properties_typeProperties_scope": {
+			"value": "/subscriptions/ec9d0891-2553-4cc9-b16e-1aa0c7040f80/resourceGroups/RafiiiADF/providers/Microsoft.Storage/storageAccounts/storagerafiiiadf"
+		}
+	}
+}
