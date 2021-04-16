@@ -1,0 +1,238 @@
+{
+	"name": "pipelinehandson",
+	"properties": {
+		"description": "For hourly daily files and their archival.",
+		"activities": [
+			{
+				"name": "CheckFileType",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Filetype",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [
+					{
+						"name": "FileT",
+						"value": "@equals(variables('TypeFile'),'Hourly')"
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('TypeFile'),'Hourly')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Copy Daily data",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "OracleSink",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"type": "String",
+												"physicalType": "String",
+												"ordinal": 2
+											},
+											"sink": {
+												"name": "NUM",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"physicalType": "String",
+												"ordinal": 1
+											},
+											"sink": {
+												"name": "NAME",
+												"type": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Handsoninput",
+									"type": "DatasetReference",
+									"parameters": {
+										"Filename": "DailySales.txt"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "HandsonOutput",
+									"type": "DatasetReference",
+									"parameters": {
+										"Tablename": "DAILY"
+									}
+								}
+							]
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Copy hourly data",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": " handson/input/HourlySales.txt"
+								},
+								{
+									"name": "Destination",
+									"value": "HOURLY"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "OracleSink",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"type": "String",
+												"physicalType": "String",
+												"ordinal": 2
+											},
+											"sink": {
+												"name": "NUM",
+												"type": "Double"
+											}
+										},
+										{
+											"source": {
+												"type": "String",
+												"physicalType": "String",
+												"ordinal": 1
+											},
+											"sink": {
+												"name": "NAME",
+												"type": "String"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Handsoninput",
+									"type": "DatasetReference",
+									"parameters": {
+										"Filename": "HourlySales.txt"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "HandsonOutput",
+									"type": "DatasetReference",
+									"parameters": {
+										"Tablename": "HOURLY"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Filetype",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [
+					{
+						"name": "Var",
+						"value": "@replace(pipeline().parameters.TriggerFilename,'Sales.txt','')"
+					}
+				],
+				"typeProperties": {
+					"variableName": "TypeFile",
+					"value": {
+						"value": "@replace(pipeline().parameters.TriggerFilename,'Sales.txt','')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"TriggerFilename": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"TypeFile": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-04-15T08:16:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

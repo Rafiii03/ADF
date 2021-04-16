@@ -1,0 +1,17 @@
+{
+	"name": "OracleInput",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Oracle1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "OracleTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "HR",
+			"table": "TEMP"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

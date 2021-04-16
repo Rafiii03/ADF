@@ -1,0 +1,35 @@
+{
+	"name": "master",
+	"properties": {
+		"activities": [
+			{
+				"name": "Master",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pipelinehandson",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"TriggerFilename": {
+							"value": "@pipeline().parameters.File",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"File": {
+				"type": "string",
+				"defaultValue": "@trigger.Body().FileName"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-04-15T08:06:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

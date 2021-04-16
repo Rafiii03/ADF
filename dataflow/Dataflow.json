@@ -1,0 +1,63 @@
+{
+	"name": "Dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "employee",
+						"type": "DatasetReference"
+					},
+					"name": "emp"
+				},
+				{
+					"dataset": {
+						"referenceName": "department",
+						"type": "DatasetReference"
+					},
+					"name": "dept"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dataflowoutput",
+						"type": "DatasetReference"
+					},
+					"name": "OutputData"
+				}
+			],
+			"transformations": [
+				{
+					"name": "EmpDeptJoin"
+				},
+				{
+					"name": "ChangeFirst"
+				},
+				{
+					"name": "ChangeLast"
+				},
+				{
+					"name": "FilterName"
+				},
+				{
+					"name": "Fullname"
+				},
+				{
+					"name": "SortbyName"
+				},
+				{
+					"name": "Select"
+				},
+				{
+					"name": "SurrogateKey1"
+				},
+				{
+					"name": "Select1"
+				}
+			],
+			"script": "source(output(\n\t\tfirst as string,\n\t\tid as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> emp\nsource(output(\n\t\tlast as string,\n\t\tid as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> dept\nChangeFirst, ChangeLast join(emp@id == dept@id,\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> EmpDeptJoin\nemp derive(first = initCap(first)) ~> ChangeFirst\ndept derive(last = initCap(last)) ~> ChangeLast\nEmpDeptJoin filter(toInteger(emp@id)>5) ~> FilterName\nFilterName derive({Full Name} = concat(first,' ',last)) ~> Fullname\nFullname sort(asc({Full Name}, true)) ~> SortbyName\nSortbyName select(mapColumn(\n\t\t{Emp Id} = emp@id,\n\t\t{First Name} = first,\n\t\t{Last Name} = last,\n\t\t{Full Name}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select\nSelect keyGenerate(output(Primary as long),\n\tstartAt: 1L) ~> SurrogateKey1\nSurrogateKey1 select(mapColumn(\n\t\tPrimary,\n\t\tEmp_Id = {Emp Id},\n\t\tFirst_Name = {First Name},\n\t\tLast_Name = {Last Name},\n\t\tFull_Name = {Full Name}\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['FilteredData.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> OutputData"
+		}
+	}
+}

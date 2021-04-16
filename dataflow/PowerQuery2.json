@@ -1,0 +1,28 @@
+{
+	"name": "PowerQuery2",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "employee",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> employee",
+					"dataset": {
+						"referenceName": "employee",
+						"type": "DatasetReference"
+					}
+				},
+				{
+					"name": "department",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> department",
+					"dataset": {
+						"referenceName": "department",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"sinks": [],
+			"script": "section Section1;\r\nshared employee = let\r\n  AdfDoc = AzureStorage.BlobContents(\"https://storagerafiiiadf.blob.core.windows.net/dataflow/input/Employee.csv\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true])\r\nin\r\n  PromotedHeaders;\r\nshared department = let\r\n  AdfDoc = AzureStorage.BlobContents(\"https://storagerafiiiadf.blob.core.windows.net/dataflow/input/Department.csv\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true])\r\nin\r\n  PromotedHeaders;\r\nshared UserQuery = let\r\n  Source = employee,\r\n  #\"Merged queries\" = Table.NestedJoin(Source, {\"id\"}, department, {\"id\"}, \"department\", JoinKind.Inner),\r\n  #\"Expanded department\" = Table.ExpandTableColumn(#\"Merged queries\", \"department\", {\"last\"}, {\"department.last\"}),\r\n  #\"Reordered columns\" = Table.ReorderColumns(#\"Expanded department\", {\"id\", \"first\", \"department.last\"})\r\nin\r\n  #\"Reordered columns\";\r\n"
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "RafiiiADF-ADF",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "52ddb443-f69b-48d9-ae78-9ce9a200d59f",
+		"tenantId": "2f27ef13-0d2a-43cf-9720-74c9744e4db8"
+	}
+}
