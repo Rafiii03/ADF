@@ -17,11 +17,25 @@
 						"type": "DatasetReference"
 					},
 					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
 				}
 			],
 			"sinks": [
 				{
 					"name": "maxid"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -35,7 +49,7 @@
 					"name": "AlterRow1"
 				}
 			],
-			"script": "source(output(\n\t\tmaxid as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select max(id) as maxid from empdata',\n\tformat: 'query') ~> maxiddata\nsource(output(\n\t\tfirst as string,\n\t\teid as short\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> source1\nsource1 keyGenerate(output(id as long),\n\tstartAt: 1L) ~> SurrogateKey1\nSurrogateKey1 derive(id = maxid#outputs()[1].maxid + id) ~> DerivedColumn1\nDerivedColumn1 alterRow(deleteIf(equals(first,'aayush'))) ~> AlterRow1\nmaxiddata sink(mapColumn(\n\t\tmaxid\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\tsaveOrder: 0) ~> maxid"
+			"script": "source(output(\n\t\tmaxid as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select max(id) as maxid from empdata',\n\tformat: 'query') ~> maxiddata\nsource(output(\n\t\tfirst as string,\n\t\teid as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> source1\nsource(output(\n\t\tid as integer,\n\t\tempid as integer,\n\t\tename as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> source2\nsource1 keyGenerate(output(id as long),\n\tstartAt: 1L) ~> SurrogateKey1\nSurrogateKey1 derive(id = maxid#outputs()[1].maxid + id) ~> DerivedColumn1\nDerivedColumn1 alterRow(deleteIf(equals(first,'aayush'))) ~> AlterRow1\nmaxiddata sink(mapColumn(\n\t\tmaxid\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\tsaveOrder: 0) ~> maxid\nAlterRow1 sink(input(\n\t\tid as integer,\n\t\tempid as integer,\n\t\tename as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tempid = eid,\n\t\tename = first,\n\t\tid\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> sink1"
 		}
 	}
 }
