@@ -1,0 +1,56 @@
+{
+	"name": "dataflow3",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "AzureSQL"
+				},
+				{
+					"dataset": {
+						"referenceName": "employee",
+						"type": "DatasetReference"
+					},
+					"name": "Blob"
+				},
+				{
+					"dataset": {
+						"referenceName": "datalake",
+						"type": "DatasetReference"
+					},
+					"name": "datalake"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dataflowoutput",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "dataflowoutput",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"dataset": {
+						"referenceName": "dataflowoutput",
+						"type": "DatasetReference"
+					},
+					"name": "sink3"
+				}
+			],
+			"transformations": [],
+			"script": "source(output(\n\t\tename as string,\n\t\tnum as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> AzureSQL\nsource(output(\n\t\tfirst as string,\n\t\tid as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> Blob\nsource(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> datalake\nAzureSQL sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['sql.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1\nBlob sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['blob.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink2\ndatalake sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['datalake.csv'],\n\tmapColumn(\n\t\tColumn_1,\n\t\tColumn_2\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink3"
+		}
+	}
+}
