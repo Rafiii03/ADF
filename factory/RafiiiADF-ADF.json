@@ -1,5 +1,13 @@
 {
 	"name": "RafiiiADF-ADF",
+	"properties": {
+		"globalParameters": {
+			"datatest": {
+				"type": "string",
+				"value": "test"
+			}
+		}
+	},
 	"location": "eastus",
 	"identity": {
 		"type": "SystemAssigned",
