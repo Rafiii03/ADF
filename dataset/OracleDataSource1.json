@@ -1,0 +1,17 @@
+{
+	"name": "OracleDataSource1",
+	"properties": {
+		"description": "Connection to your source data store.",
+		"linkedServiceName": {
+			"referenceName": "Oracle1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "OracleTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DataSourceTable"
+		}
+	}
+}
